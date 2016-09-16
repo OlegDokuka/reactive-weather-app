@@ -17,7 +17,7 @@ ext {
     nettyVersion = '4.1.5.Final'
     reactorNettyVersion = '0.6.0.BUILD-SNAPSHOT'
     springVersion = '5.0.0.BUILD-SNAPSHOT'
-    commonsVersion = '2.5';
+    commonsVersion = '2.5'
     freeMarkerVersion = '2.3.23'
 
     javadocLinks = [
