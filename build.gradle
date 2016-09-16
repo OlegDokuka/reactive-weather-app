@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '1.4.1.BUILD-SNAPSHOT'
+        springBootVersion = '1.4.0.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -10,22 +10,6 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
-}
-
-ext {
-    reactiveWebVersion = '0.1.0.BUILD-SNAPSHOT'
-    nettyVersion = '4.1.5.Final'
-    reactorNettyVersion = '0.6.0.BUILD-SNAPSHOT'
-    springVersion = '5.0.0.BUILD-SNAPSHOT'
-    commonsVersion = '2.5';
-    freeMarkerVersion = '2.3.23'
-
-    javadocLinks = [
-            "http://docs.oracle.com/javase/8/docs/api/",
-            "http://projectreactor.io/core/docs/api/",
-            "http://docs.spring.io/spring/docs/${springVersion}/javadoc-api/",
-            "http://www.reactive-streams.org/reactive-streams-1.0.0-javadoc/"
-    ] as String[]
 }
 
 
@@ -59,28 +43,24 @@ jar {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+ext {
+    commonsVersion = '2.5';
+}
+
 repositories {
-//    mavenLocal()
     mavenCentral()
     maven { url "https://repo.spring.io/snapshot" }
     maven { url "https://repo.spring.io/release" }
     maven { url "https://repo.spring.io/milestone" }
 }
 
-configurations {
-    compile.exclude module: "spring-boot-starter-tomcat"
-}
-
 dependencies {
-    compile("org.springframework.boot.experimental:spring-boot-starter-web-reactive")
-    compile("org.freemarker:freemarker:${freeMarkerVersion}")
-//    compile("io.projectreactor.ipc:reactor-netty:${reactorNettyVersion}")
-    compile("io.reactivex:rxnetty-http:0.5.2-rc.4")
-    compile("io.netty:netty-all:${nettyVersion}")
+    compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-starter-cache")
     compile("org.springframework.boot:spring-boot-devtools")
     compile("org.springframework.boot:spring-boot-configuration-processor")
+    compile("org.springframework.boot:spring-boot-starter-mustache")
     compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compile("com.github.ben-manes.caffeine:caffeine")
     compile("org.hibernate:hibernate-validator")
@@ -89,12 +69,6 @@ dependencies {
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.boot.experimental:spring-boot-dependencies-web-reactive:${reactiveWebVersion}"
-    }
 }
 
 eclipse {

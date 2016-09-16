@@ -2,7 +2,7 @@ package com.example.weather.web;
 
 import com.example.weather.integration.ows.Weather;
 
-public class WeatherSummary {
+class WeatherSummary {
 
 	private final String country;
 
@@ -48,8 +48,4 @@ public class WeatherSummary {
 		return String.format("%4.2f", celsiusTemp);
 	}
 
-	@Override
-	public String toString() {
-		return String.format("country: %s, city: %s", country, city);
-	}
 }
