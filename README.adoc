@@ -1,4 +1,4 @@
-= Simple weather app
+= Simple Reactive weather app
 
 == Getting started
 
