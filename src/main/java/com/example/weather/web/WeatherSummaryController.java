@@ -28,6 +28,7 @@ public class WeatherSummaryController {
     @RequestMapping(method = RequestMethod.GET)
     public Mono<String> conferenceWeather(Model model) {
         model.addAttribute("summary", getSummary());
+
         return Mono.just("summary");
     }
 
