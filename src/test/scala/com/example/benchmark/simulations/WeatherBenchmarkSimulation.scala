@@ -5,8 +5,6 @@ import io.gatling.http.Predef._
 
 import scala.concurrent.duration._
 
-class Location(var country: String, var city: String)
-
 class WeatherBenchmarkSimulation extends Simulation {
 
   val baseURL = Option(System.getProperty("baseURL")) getOrElse
@@ -24,7 +22,10 @@ class WeatherBenchmarkSimulation extends Simulation {
   val seq = Map(
     "Belgium" -> "Brussels",
     "USA" -> "Las Vegas"
-  ).map { case (k, v) => new Location(k, v) }.toSeq
+  ).map { case (k, v) => Map(
+    "country" -> k,
+    "city" -> v
+  )}.toSeq
 
   val scn = scenario("Weather App")
     .repeat(1000) {
