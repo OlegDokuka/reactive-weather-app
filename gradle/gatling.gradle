@@ -27,14 +27,14 @@ task gatlingRun(dependsOn:'manifestJar', type: JavaExec) {
     standardInput = System.in
 
     final def sourceSet = sourceSets.test
-    File configFile = file('src/test/resources/gatling.conf')
+    File configFile = file('src/test/resources/gatling/conf/gatling.conf')
 
-    def String gatlingDataFolder = "$project.rootDir.absolutePath/src/test/gatling/data"
+    def String gatlingDataFolder = "$project.rootDir.absolutePath/src/test/resources/gatling/data"
     def String gatlingReportsFolder = "$project.buildDir.absolutePath/reports/gatling"
     def String gatlingBodiesFolder = "$project.rootDir.absolutePath/src/test/gatling/bodies"
-    def String gatlingSimulationsFolder = "$project.rootDir.absolutePath/src/test/gatling/simulations"
+    def String gatlingSimulationsFolder = "$project.rootDir.absolutePath/src/test/scala/**/simulations"
 
-    classpath sourceSet.output + files(manifestJar.archivePath) + files("src/test/gatling/conf")
+    classpath sourceSet.output + files(manifestJar.archivePath) + files("src/test/resources/gatling/conf")
     main = "io.gatling.app.Gatling"
 
     environment GATLING_HOME:''

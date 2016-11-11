@@ -1,12 +1,13 @@
 package com.example.benchmark.simulations
 
-import com.example.weather.web.Location
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 import scala.concurrent.duration._
 
-class CreateNotificationsSimulation extends Simulation {
+class Location(var country: String, var city: String)
+
+class WeatherBenchmarkSimulation extends Simulation {
 
   val baseURL = Option(System.getProperty("baseURL")) getOrElse
     (Option(System.getenv("BASE_URL")) getOrElse """http://localhost:8080""")
@@ -29,7 +30,7 @@ class CreateNotificationsSimulation extends Simulation {
     .repeat(1000) {
       foreach(_ => seq, "location") {
         exec(http("Get Weather Page")
-          .get("/now/${location.getCounty}/${location.getCity}")
+          .get("/now/${location.country}/${location.city}")
           .check(status.is(200))).exitHereIfFailed
           .pause(1 millisecond)
       }

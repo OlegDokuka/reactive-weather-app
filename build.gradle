@@ -19,7 +19,7 @@ ext {
     reactorNettyVersion = '0.5.2.RELEASE'
     springVersion = '5.0.0.BUILD-SNAPSHOT'
     commonsVersion = '2.5'
-    gatlingVersion = '2.1.7'
+    gatlingVersion = '2.2.3'
 
     javadocLinks = [
             "http://docs.oracle.com/javase/8/docs/api/",
