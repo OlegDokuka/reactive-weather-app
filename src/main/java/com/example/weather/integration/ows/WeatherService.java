@@ -3,17 +3,17 @@ package com.example.weather.integration.ows;
 import com.example.weather.WeatherAppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.reactive.WebClient;
 import org.springframework.web.util.UriTemplate;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+
+import static org.springframework.web.client.reactive.ClientRequest.GET;
 
 @Service
 public class WeatherService {
@@ -26,13 +26,12 @@ public class WeatherService {
 
     private static final Logger logger = LoggerFactory.getLogger(WeatherService.class);
 
-    private final RestTemplate restTemplate;
+    private final WebClient webClient;
 
     private final String apiKey;
 
-    public WeatherService(RestTemplateBuilder restTemplateBuilder,
-                          WeatherAppProperties properties) {
-        this.restTemplate = restTemplateBuilder.build();
+    public WeatherService(WeatherAppProperties properties) {
+        this.webClient = WebClient.create(new ReactorClientHttpConnector());
         this.apiKey = properties.getApi().getKey();
     }
 
@@ -40,22 +39,22 @@ public class WeatherService {
     public Mono<Weather> getWeather(String country, String city) {
         logger.info("Requesting current weather for {}/{}", country, city);
         URI url = new UriTemplate(WEATHER_URL).expand(city, country, this.apiKey);
-        return Mono.fromCallable(() -> invoke(url, Weather.class));
+        return invoke(url, Weather.class);
     }
 
     @Cacheable("forecast")
     public Mono<WeatherForecast> getWeatherForecast(String country, String city) {
         logger.info("Requesting weather forecast for {}/{}", country, city);
         URI url = new UriTemplate(FORECAST_URL).expand(city, country, this.apiKey);
-        return Mono.fromCallable(() -> invoke(url, WeatherForecast.class));
+        return invoke(url, WeatherForecast.class);
     }
 
-    private <T> T invoke(URI url, Class<T> responseType) {
-        RequestEntity<?> request = RequestEntity.get(url)
-                .accept(MediaType.APPLICATION_JSON).build();
-        ResponseEntity<T> exchange = this.restTemplate
-                .exchange(request, responseType);
-        return exchange.getBody();
+    private <T> Mono<T> invoke(URI url, Class<T> responseType) {
+        return webClient
+                .exchange(GET(url.toString())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .build())
+                .then(response -> response.bodyToMono(responseType));
     }
 
 }

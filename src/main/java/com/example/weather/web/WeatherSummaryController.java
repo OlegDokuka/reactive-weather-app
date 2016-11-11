@@ -3,16 +3,14 @@ package com.example.weather.web;
 import com.example.weather.WeatherAppProperties;
 import com.example.weather.integration.ows.Weather;
 import com.example.weather.integration.ows.WeatherService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Duration;
 
-@Controller
+@RestController
 @RequestMapping("/")
 public class WeatherSummaryController {
 
@@ -20,37 +18,35 @@ public class WeatherSummaryController {
 
     private final WeatherAppProperties properties;
 
-    public WeatherSummaryController(WeatherService weatherService, WeatherAppProperties properties) {
+    public WeatherSummaryController(WeatherService weatherService,
+                                    WeatherAppProperties properties) {
         this.weatherService = weatherService;
         this.properties = properties;
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public Mono<String> conferenceWeather(Model model) {
-        model.addAttribute("summary", getSummary());
-
-        return Mono.just("summary");
+    @RequestMapping(value = "weather.stream", produces = "text/event-stream")
+    public Flux<WeatherSummary> weatherStream() throws Exception {
+       return Flux.interval(Duration.ZERO, Duration.ofSeconds(5))
+                .flatMap(i -> this.getLocations())
+                .flatMap(l -> Flux.zip(Mono.just(l), weatherService.getWeather(l.getCountry(), l.getCity())))
+                .map(t2 -> createWeatherSummary(t2.getT1(), t2.getT2()));
     }
 
-    private Object getSummary() {
-        List<WeatherSummary> summary = new ArrayList<>();
-        for (String location : this.properties.getLocations()) {
-            String country = location.split("/")[0];
-            String city = location.split("/")[1];
-            Weather weather = this.weatherService.getWeather(country, city).block();
-            summary.add(createWeatherSummary(country, city, weather));
-        }
-        return summary;
+    private Flux<Location> getLocations() {
+        return Flux.fromStream(
+                this.properties.getLocations().stream()
+                        .map(l -> l.split("/"))
+                        .map(args -> new Location(args[0], args[1]))
+        );
     }
 
-
-    private WeatherSummary createWeatherSummary(String country, String city,
+    private WeatherSummary createWeatherSummary(Location location,
                                                 Weather weather) {
         // cough cough
-        if ("Las Vegas".equals(city)) {
+        if ("Las Vegas".equals(location.getCity())) {
             weather.setWeatherId(666);
         }
-        return new WeatherSummary(country, city, weather);
+        return new WeatherSummary(location.getCountry(), location.getCity(), weather);
     }
 
 }
