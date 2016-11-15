@@ -32,7 +32,7 @@ class WeatherBenchmarkSimulation extends Simulation {
       foreach(_ => seq, "location") {
         exec(http("Get Weather Page")
           .get("/now/${location.country}/${location.city}")
-          .check(status.is(200))).exitHereIfFailed
+          .check(status.is(200)))
           .pause(1 millisecond)
       }
     }
